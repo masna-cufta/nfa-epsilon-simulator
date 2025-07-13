@@ -23,7 +23,7 @@ def parse_input():
 
         if symbol not in transitions[current_state]:
             transitions[current_state][symbol] = set()
-
+        
         if right == '#':
             next_states = set()
         else:
@@ -34,9 +34,9 @@ def parse_input():
 
     return inputs, start_state, transitions
 
-def epsilon_closure(state_set, transitions):
+def process_epsilon_closure(state_set, transitions):
     closure = set(state_set)
-    queue = deque(state_set)
+    queue = deque(state_set)  
 
     while queue:
         current = queue.popleft()
@@ -49,21 +49,22 @@ def epsilon_closure(state_set, transitions):
 
     return closure
 
-def run_nfa(inputs, start_state, transitions):
+def nfa_result(inputs, start_state, transitions): 
     results = []
 
-    for input_string in inputs:
-        symbols = input_string.split(',') if input_string else []
-        start_set = {start_state}
-        current_states = epsilon_closure(start_set, transitions)
+    for input_str in inputs:
+        symbols = input_str.split(',') if input_str else []
+        start_set = set()
+        start_set.add(start_state)
+        current_states = process_epsilon_closure(start_set, transitions)  
 
         if current_states:
             sorted_states = sorted(current_states)
-            first_output = ','.join(sorted_states)
+            first_entry = ','.join(sorted_states)
         else:
-            first_output = '#'
+            first_entry = '#'
 
-        result_sequence = [first_output]
+        result_sequence = [first_entry]
 
         for symbol in symbols:
             next_states = set()
@@ -72,26 +73,26 @@ def run_nfa(inputs, start_state, transitions):
                 if state in transitions and symbol in transitions[state]:
                     next_states.update(transitions[state][symbol])
 
-            current_states = epsilon_closure(next_states, transitions)
+            current_states = process_epsilon_closure(next_states, transitions)
 
             if current_states:
                 sorted_states = sorted(current_states)
-                new_output = ','.join(sorted_states)
+                new_entry = ','.join(sorted_states)
             else:
-                new_output = '#'
+                new_entry = '#'
 
-            result_sequence.append(new_output)
-
+            result_sequence.append(new_entry)
+        
         results.append('|'.join(result_sequence))
 
     return results
 
 def main():
     inputs, start_state, transitions = parse_input()
-    results = run_nfa(inputs, start_state, transitions)
+    results = nfa_result(inputs, start_state, transitions)
 
     for result_line in results:
         print(result_line)
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()
